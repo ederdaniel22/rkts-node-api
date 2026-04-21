@@ -1,10 +1,13 @@
-import fastify from 'fastify'
+import fastify from "fastify"
+import { knex } from "./database.js"
 
 const app = fastify()
 
 // Criar Rotas http
-app.get('/hello', () => {
-  return 'Olá meu Deus, eu Vos amo de todo coração'
+app.get("/hello", async () => {
+  const tables = await knex("sqlite_schema").select("*")
+
+  return tables
 })
 
 app
@@ -12,5 +15,5 @@ app
     port: 3333,
   })
   .then(() => {
-    console.log('Meu Deus meu Tudo')
+    console.log("Meu Deus meu Tudo")
   })
