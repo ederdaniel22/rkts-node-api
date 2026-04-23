@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "knex": "tsx ./node_modules/knex/bin/cli.js",
     "lint": "eslint src --ext .ts --fix"
   },
   "keywords": [],
@@ -13,12 +14,12 @@
   "type": "module",
   "devDependencies": {
     "@rocketseat/eslint-config": "^2.2.2",
+    "@types/node": "^25.6.0",
     "eslint": "^8.57.1",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   },
   "dependencies": {
-    "@types/node": "^25.6.0",
     "fastify": "^5.8.5",
     "knex": "^3.2.9",
     "sqlite3": "^6.0.1"
