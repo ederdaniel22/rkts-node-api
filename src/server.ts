@@ -1,17 +1,19 @@
 import fastify from "fastify"
 import { env } from "./env"
 import { transactionsRoutes } from "./routes/transactions"
+import cookie from "@fastify/cookie"
 
 const app = fastify()
 
-app.register(transactionsRoutes, {
-  prefix:'transactions'
-}),
+app.register(cookie)
 
-app
-  .listen({
-    port: env.PORT,
-  })
-  .then(() => {
-    console.log("Meu Deus meu Tudo")
-  })
+;(app.register(transactionsRoutes, {
+  prefix: "transactions",
+}),
+  app
+    .listen({
+      port: env.PORT,
+    })
+    .then(() => {
+      console.log("Meu Deus meu Tudo")
+    }))
