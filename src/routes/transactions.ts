@@ -2,34 +2,69 @@ import type { FastifyInstance } from "fastify"
 import { z } from "zod"
 import { randomUUID } from "node:crypto"
 import { knex } from "../database"
+import { checkSessionIdExists } from "../middlewares/check-session-id-exists"
 
 // Cookies = Formas de mantermos contexto entre requisições
 
 // Criar Rotas http
 export async function transactionsRoutes(app: FastifyInstance) {
-  app.get("/", async () => {
-    const transactions = await knex("transactions").select()
-    return { transactions }
-  })
+  app.get(
+    "/",
+    {
+      preHandler: [checkSessionIdExists],
+    },
+    async (request, reply) => {
+      const { sessionId } = request.cookies
 
-  app.get("/:id", async (request) => {
-    const getTransactionParamsSchema = z.object({
-      id: z.uuid(),
-    })
+      const transactions = await knex("transactions")
+        .where("session_id", sessionId)
+        .select()
 
-    const { id } = getTransactionParamsSchema.parse(request.params)
-    const transaction = await knex("transactions").where("id", id).first()
+      return { transactions }
+    },
+  )
 
-    return { transaction }
-  })
+  app.get(
+    "/:id",
+    {
+      preHandler: [checkSessionIdExists],
+    },
+    async (request) => {
+      const getTransactionParamsSchema = z.object({
+        id: z.uuid(),
+      })
 
-  app.get("/summary", async () => {
-    const summary = await knex("transactions")
-      .sum("amount", { as: "amount" })
-      .first()
+      const { id } = getTransactionParamsSchema.parse(request.params)
 
-    return { summary }
-  })
+      const { sessionId } = request.cookies
+
+      const transaction = await knex("transactions")
+        .where({
+          session_id: sessionId,
+          id,
+        })
+        .first()
+
+      return { transaction }
+    },
+  )
+
+  app.get(
+    "/summary",
+    {
+      preHandler: [checkSessionIdExists],
+    },
+    async (request) => {
+      const { sessionId } = request.cookies
+
+      const summary = await knex("transactions")
+        .where("session_id", sessionId)
+        .sum("amount", { as: "amount" })
+        .first()
+
+      return { summary }
+    },
+  )
 
   app.post("/", async (request, reply) => {
     // {title, amount, type: credit ou debit}
