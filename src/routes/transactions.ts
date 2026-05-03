@@ -4,6 +4,14 @@ import { randomUUID } from "node:crypto"
 import { knex } from "../database"
 import { checkSessionIdExists } from "../middlewares/check-session-id-exists"
 
+// Testes unitários: testa parte do projeto
+// Integração: Teste de comunicação de duas ou mais partes do projeto
+// e2e - ponta a ponta: Testes que simulam usuário operando na aplicação
+// front-end: sequência de passos para acessar a aplicação
+// back-end: chamadas HTTP, websockets, testa as portas de comunicação
+
+// Pirâmide de testes: E2E(não dependem de nenhuma tecnologia ou arquitetura)
+
 // Cookies = Formas de mantermos contexto entre requisições
 
 // Criar Rotas http
