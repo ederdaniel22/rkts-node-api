@@ -1,12 +1,13 @@
 # RKTS Node API
 
-Uma API REST construída com **Fastify** e **TypeScript** para gerenciar transações, com autenticação via sessão de cookies.
+Uma API REST construída com **Fastify** e **TypeScript** para gerenciar transações, com autenticação via sessão de cookies. Suporta múltiplos bancos de dados (SQLite e PostgreSQL).
 
 ## 🚀 Tecnologias
 
 - **[Fastify](https://fastify.dev/)** - Framework web rápido e de baixo overhead
 - **[TypeScript](https://www.typescriptlang.org/)** - Superset tipado do JavaScript
-- **[SQLite3](https://www.sqlite.org/)** - Banco de dados relacional leve
+- **[SQLite3](https://www.sqlite.org/)** - Banco de dados relacional leve (para desenvolvimento)
+- **[PostgreSQL](https://www.postgresql.org/)** - Banco de dados relacional robusto (para produção)
 - **[Knex.js](http://knexjs.org/)** - Query builder e ferramenta de migrações
 - **[Zod](https://zod.dev/)** - Validação de schemas em TypeScript
 - **[TSup](https://tsup.egoist.dev/)** - Bundler de TypeScript rápido e fácil de usar
@@ -84,6 +85,38 @@ rkts_node_api/
 
 A aplicação utiliza **sessão de cookies** para autenticação. Todas as requisições devem incluir o cookie de sessão.
 
+## 🗄️ Suporte a Múltiplos Bancos de Dados
+
+A API foi desenvolvida com suporte flexível para diferentes bancos de dados:
+
+### SQLite (Desenvolvimento)
+
+- ✅ Ideal para desenvolvimento local
+- ✅ Sem necessidade de servidor externo
+- ✅ Arquivo único de banco de dados
+
+**Configuração:**
+
+```env
+DATABASE_CLIENT=sqlite
+DATABASE_URL=./db/app.db
+```
+
+### PostgreSQL (Produção)
+
+- ✅ Ideal para ambientes de produção
+- ✅ Suporte para múltiplos usuários
+- ✅ Melhor performance e escalabilidade
+
+**Configuração:**
+
+```env
+DATABASE_CLIENT=pg
+DATABASE_URL=postgres://usuario:senha@localhost:5432/rkts_node_api
+```
+
+A configuração do banco é feita automaticamente baseada na variável `DATABASE_CLIENT`.
+
 ## 🌐 Endpoints
 
 ### Transações
@@ -93,9 +126,9 @@ A aplicação utiliza **sessão de cookies** para autenticação. Todas as requi
 - `GET /transactions/:id` - Obtém uma transação específica
 - `DELETE /transactions/:id` - Deleta uma transação
 
-## 🗄️ Banco de Dados
+## �️ Banco de Dados e Migrações
 
-O projeto utiliza SQLite3 com Knex.js para migrações. As migrações estão localizadas em `db/migrations/`.
+O projeto utiliza Knex.js para gerenciar migrações, compatível com SQLite e PostgreSQL. As migrações estão localizadas em `db/migrations/`.
 
 ### Executar migrações
 
@@ -108,25 +141,67 @@ npm run knex migrate:latest
 
 # Reverter última migração
 npm run knex migrate:rollback
+
+# Reverter todas as migrações
+npm run knex migrate:rollback --all
 ```
+
+As migrações são executadas automaticamente ao iniciar o servidor em desenvolvimento.
 
 ## ⚙️ Variáveis de Ambiente
 
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-PORT=3000
+# Ambiente de execução
 NODE_ENV=development
+
+# Configuração do banco de dados
+DATABASE_CLIENT=sqlite  # ou 'pg' para PostgreSQL
 DATABASE_URL=./db/app.db
+
+# Para PostgreSQL, use a URL de conexão:
+# DATABASE_CLIENT=pg
+# DATABASE_URL=postgres://usuario:senha@localhost:5432/rkts_node_api
+
+# Porta do servidor
+PORT=3333
 ```
+
+### Variáveis Suportadas
+
+| Variável          | Valores                             | Descrição                                                     |
+| ----------------- | ----------------------------------- | ------------------------------------------------------------- |
+| `NODE_ENV`        | `development`, `test`, `production` | Ambiente de execução                                          |
+| `DATABASE_CLIENT` | `sqlite`, `pg`                      | Cliente de banco de dados                                     |
+| `DATABASE_URL`    | string                              | Caminho do arquivo (SQLite) ou string de conexão (PostgreSQL) |
+| `PORT`            | número                              | Porta do servidor (padrão: 3333)                              |
 
 ## 🧪 Testes
 
-Execute a suite de testes com:
+A aplicação suporta testes automatizados usando Vitest. Um arquivo `.env.test` separado é usado durante os testes.
 
 ```bash
+# Executar testes
 npm run test
+
+# Executar testes em modo watch
+npm run test -- --watch
+
+# Executar testes com cobertura
+npm run test -- --coverage
 ```
+
+**Arquivo `.env.test`:**
+
+```env
+NODE_ENV=test
+DATABASE_CLIENT=sqlite
+DATABASE_URL=:memory:
+PORT=3333
+```
+
+Para usar PostgreSQL nos testes, configure o `.env.test` com um banco de dados de teste separado.
 
 ## 📝 Licença
 
