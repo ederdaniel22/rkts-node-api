@@ -59,21 +59,29 @@ PORT=3000
 
 Substitua `sua_senha` e `seu-host` pelos valores copiados.
 
-### 4️⃣ Configurar o Build Command (opcional)
+### 4️⃣ Configurar o Build Command
+
+⚠️ **IMPORTANTE:** Use `npm ci --only=production` para evitar instalar devDependencies (como sqlite3) em produção!
 
 Se quiser que as migrações rodem automaticamente:
 
 1. Vá em **Build & Deploy**
 2. Em **Build Command**, altere para:
    ```bash
-   npm install && npm run knex -- migrate:latest && npm run build
+   npm ci --only=production && npm run knex -- migrate:latest && npm run build
    ```
 
 Ou deixe como está se preferir rodar as migrações manualmente:
 
 ```bash
-npm install && npm run build
+npm ci --only=production && npm run build
 ```
+
+**Por que `npm ci --only=production`?**
+- ✅ Instala apenas dependências de produção
+- ✅ Evita o erro de SQLite3 (`GLIBC_2.38` not found)
+- ✅ Mais rápido que `npm install`
+- ✅ Usa `package-lock.json` para versões exatas
 
 ### 5️⃣ Deploy
 

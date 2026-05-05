@@ -3,7 +3,7 @@ services:
     name: rkts-node-api
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build
+    buildCommand: npm ci --only=production && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -16,7 +16,7 @@ services:
         value: 3000
 
     # Se quiser rodar migrações automaticamente após o build:
-    # buildCommand: npm install && npm run knex -- migrate:latest && npm run build
+    # buildCommand: npm ci --only=production && npm run knex -- migrate:latest && npm run build
 
     # Deixe commentado se preferir rodar as migrações manualmente:
     # npm run knex -- migrate:latest

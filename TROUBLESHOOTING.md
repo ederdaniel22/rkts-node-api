@@ -10,31 +10,41 @@ Error: /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.38' not found (required
 ```
 
 **Causa:**
-SQLite3 é um módulo nativo que precisa ser compilado. O Render não tem as dependências de sistema necessárias.
+SQLite3 é um módulo nativo que precisa ser compilado. O problema ocorre quando `npm install` instala **devDependencies** (incluindo sqlite3) em produção.
 
-**Solução:**
-Use PostgreSQL em produção. SQLite3 é apenas para desenvolvimento local.
+**Solução: Use `npm ci --only=production` no Build Command**
 
-### Passos para corrigir:
+1. **Vá ao painel do Render:**
+   - Dashboard → seu Web Service
+   - Clique em **Build & Deploy**
 
-1. **Crie um banco PostgreSQL no Render:**
-   - Dashboard do Render → New → PostgreSQL
-   - Defina um nome (ex: rkts-node-api-db)
-   - Use o plano Free
+2. **Altere o Build Command para:**
 
-2. **Conecte o banco ao seu serviço Web:**
-   - Dashboard do Render → seu serviço Web
-   - Vá em Environment
-   - A variável `DATABASE_URL` será preenchida automaticamente
+   ```bash
+   npm ci --only=production && npm run build
+   ```
 
-3. **Defina as variáveis de ambiente:**
-   - `NODE_ENV` = `production`
-   - `DATABASE_CLIENT` = `pg`
-   - `PORT` = `3000`
+   Ou com migrações automáticas:
 
-4. **Reimplante:**
-   - Push para o repositório ou clique em "Manual Deploy"
-   - O build agora deve funcionar com PostgreSQL
+   ```bash
+   npm ci --only=production && npm run knex -- migrate:latest && npm run build
+   ```
+
+3. **Reimplante:**
+   - Clique em **Manual Deploy**
+   - Escolha o branch `main`
+   - Aguarde o build
+
+**Por que isso funciona?**
+- ✅ `npm ci --only=production` instala APENAS dependências de produção
+- ✅ SQLite3 está em `devDependencies` e não será instalado
+- ✅ PostgreSQL (em `dependencies`) será instalado normalmente
+- ✅ Evita erros de compilação nativa
+
+**Se ainda não funcionar:**
+- Certifique-se de que o banco PostgreSQL está criado
+- Verifique se a variável `DATABASE_URL` está definida
+- Clique em **Manual Deploy** novamente
 
 ---
 

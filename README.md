@@ -226,21 +226,21 @@ O erro de deploy com SQLite3 ocorre porque o Render não tem as dependências de
    PORT=3000
    ```
 
-3. **Configure o Build Command (se necessário):**
+3. **Configure o Build Command no Render:**
 
-   Se o deploy ainda falhar, use este build command no Render:
-
-   ```bash
-   npm install --legacy-peer-deps && npm run build
-   ```
-
-4. **Ou desabilite as migrações no deploy:**
-
-   Se preferir rodar as migrações manualmente após o deploy:
+   Use este build command para evitar instalar SQLite3:
 
    ```bash
-   npm install && npm run build
+   npm ci --only=production && npm run build
    ```
+
+   Se quiser rodar migrações automaticamente:
+
+   ```bash
+   npm ci --only=production && npm run knex -- migrate:latest && npm run build
+   ```
+
+4. **Reimplante:**
 
    Depois execute as migrações localmente ou via SSH:
 
