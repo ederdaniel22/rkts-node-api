@@ -4,8 +4,7 @@
     // File Layout
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    // "rootDir": "./src",
-    // "outDir": "./dist",
+    "outDir": "./build",
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "ESNext",
