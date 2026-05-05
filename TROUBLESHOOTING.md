@@ -10,41 +10,44 @@ Error: /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.38' not found (required
 ```
 
 **Causa:**
-SQLite3 é um módulo nativo que precisa ser compilado. O problema ocorre quando `npm install` instala **devDependencies** (incluindo sqlite3) em produção.
+SQLite3 é um módulo nativo compilado localmente. Durante o build no Render, ele tenta ser instalado e compilado, mas falha por incompatibilidade de GLIBC.
 
-**Solução: Use `npm ci --only=production` no Build Command**
+**Solução: Use Build Command com variáveis de ambiente inline**
 
-1. **Vá ao painel do Render:**
+1. **Via render.yaml (recomendado):**
+
+   O arquivo `render.yaml` já está configurado com:
+
+   ```bash
+   NODE_ENV=production DATABASE_CLIENT=pg DATABASE_URL=postgres://build:build@localhost/build npm ci --only=production && npm run build
+   ```
+
+2. **Ou manual no painel do Render:**
    - Dashboard → seu Web Service
    - Clique em **Build & Deploy**
-
-2. **Altere o Build Command para:**
-
-   ```bash
-   npm ci --only=production && npm run build
-   ```
-
-   Ou com migrações automáticas:
+   - Em **Build Command**, coloque:
 
    ```bash
-   npm ci --only=production && npm run knex -- migrate:latest && npm run build
+   NODE_ENV=production DATABASE_CLIENT=pg DATABASE_URL=postgres://build:build@localhost/build npm ci --only=production && npm run build
    ```
-
-3. **Reimplante:**
-   - Clique em **Manual Deploy**
-   - Escolha o branch `main`
-   - Aguarde o build
 
 **Por que isso funciona?**
-- ✅ `npm ci --only=production` instala APENAS dependências de produção
-- ✅ SQLite3 está em `devDependencies` e não será instalado
-- ✅ PostgreSQL (em `dependencies`) será instalado normalmente
-- ✅ Evita erros de compilação nativa
 
-**Se ainda não funcionar:**
-- Certifique-se de que o banco PostgreSQL está criado
-- Verifique se a variável `DATABASE_URL` está definida
-- Clique em **Manual Deploy** novamente
+- ✅ Define as variáveis ANTES do build
+- ✅ `npm ci --only=production` instala APENAS dependências de produção
+- ✅ SQLite3 fica em `devDependencies` e não é instalado
+- ✅ Database URL temporária evita erros de configuração
+
+**Verificação:**
+
+1. Certifique-se de que:
+   - ✅ O `render.yaml` está no repositório
+   - ✅ Enviou as mudanças com `git push`
+   - ✅ Clique em **Manual Deploy** no Render
+
+2. Verifique os logs durante o build:
+   - Procure por "SQLite" - não deve aparecer
+   - Procure por "pg" - deve estar usando PostgreSQL
 
 ---
 

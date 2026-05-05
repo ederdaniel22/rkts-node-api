@@ -61,24 +61,29 @@ Substitua `sua_senha` e `seu-host` pelos valores copiados.
 
 ### 4️⃣ Configurar o Build Command
 
-⚠️ **IMPORTANTE:** Use `npm ci --only=production` para evitar instalar devDependencies (como sqlite3) em produção!
+⚠️ **IMPORTANTE:** Defina as variáveis de ambiente NO build command para evitar erros!
 
-Se quiser que as migrações rodem automaticamente:
+O `render.yaml` já vem pré-configurado. Mas se precisar alterar manualmente:
 
 1. Vá em **Build & Deploy**
-2. Em **Build Command**, altere para:
+2. Em **Build Command**, use SEMPRE este formato:
+
+   **Sem migrações automáticas (recomendado):**
+
    ```bash
-   npm ci --only=production && npm run knex -- migrate:latest && npm run build
+   NODE_ENV=production DATABASE_CLIENT=pg DATABASE_URL=postgres://build:build@localhost/build npm ci --only=production && npm run build
    ```
 
-Ou deixe como está se preferir rodar as migrações manualmente:
+   **Com migrações automáticas:**
 
-```bash
-npm ci --only=production && npm run build
-```
+   ```bash
+   NODE_ENV=production DATABASE_CLIENT=pg DATABASE_URL=postgres://build:build@localhost/build npm ci --only=production && npm run knex -- migrate:latest && npm run build
+   ```
 
-**Por que `npm ci --only=production`?**
-- ✅ Instala apenas dependências de produção
+**Por que isso funciona?**
+
+- ✅ Define as variáveis de ambiente DURANTE o build
+- ✅ `npm ci --only=production` instala apenas dependências de produção
 - ✅ Evita o erro de SQLite3 (`GLIBC_2.38` not found)
 - ✅ Mais rápido que `npm install`
 - ✅ Usa `package-lock.json` para versões exatas
@@ -100,8 +105,16 @@ npm ci --only=production && npm run build
 ### 6️⃣ Aguardar o build
 
 - Os logs aparecerão em tempo real
-- Procure por uma mensagem tipo: ✅ `Build successful`
+- ✅ Procure por: `Build successful`
+- ❌ NÃO deve aparecer: "sqlite3" ou "GLIBC_2.38"
+- ✅ Deve aparecer: "pg" (PostgreSQL)
 - Sua aplicação estará disponível em: `https://seu-servico.onrender.com`
+
+**Se ver erro de SQLite3:**
+
+- Confirme que o Build Command tem as variáveis de ambiente inline
+- Clique em **Manual Deploy** novamente
+- Consulte [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 ---
 
