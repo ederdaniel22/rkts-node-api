@@ -203,7 +203,77 @@ PORT=3333
 
 Para usar PostgreSQL nos testes, configure o `.env.test` com um banco de dados de teste separado.
 
-## 📝 Licença
+## � Deploy
+
+### Render.com (Recomendado para Produção)
+
+O erro de deploy com SQLite3 ocorre porque o Render não tem as dependências de sistema necessárias para compilar SQLite3.
+
+**Solução: Use PostgreSQL em produção**
+
+1. **Configure o banco de dados PostgreSQL no Render:**
+   - Crie um novo PostgreSQL Database
+   - Copie a **Internal Database URL**
+
+2. **Defina as variáveis de ambiente no Render:**
+
+   No painel do Render, vá em **Environment** e adicione:
+
+   ```env
+   NODE_ENV=production
+   DATABASE_CLIENT=pg
+   DATABASE_URL=postgres://seu-usuario:sua-senha@seu-host:5432/seu-banco
+   PORT=3000
+   ```
+
+3. **Configure o Build Command (se necessário):**
+
+   Se o deploy ainda falhar, use este build command no Render:
+
+   ```bash
+   npm install --legacy-peer-deps && npm run build
+   ```
+
+4. **Ou desabilite as migrações no deploy:**
+
+   Se preferir rodar as migrações manualmente após o deploy:
+
+   ```bash
+   npm install && npm run build
+   ```
+
+   Depois execute as migrações localmente ou via SSH:
+
+   ```bash
+   npm run knex -- migrate:latest
+   ```
+
+### Variáveis de Ambiente para Produção
+
+```env
+NODE_ENV=production
+DATABASE_CLIENT=pg
+DATABASE_URL=postgres://usuario:senha@host:5432/database
+PORT=3000
+```
+
+⚠️ **IMPORTANTE:**
+
+- **Nunca** faça commit do `.env` com dados sensíveis
+- **Não use SQLite3 em produção** em ambientes serverless
+- Use PostgreSQL para deploy em Render, Vercel, Heroku, etc.
+- SQLite3 é apenas para desenvolvimento local
+
+## 📖 Troubleshooting
+
+Encontrou um erro? Confira [TROUBLESHOOTING.md](TROUBLESHOOTING.md) para soluções de problemas comuns, incluindo:
+
+- Erro de GLIBC com SQLite3
+- Deploy no Render
+- Variáveis de ambiente
+- E muito mais
+
+## �📝 Licença
 
 ISC
 

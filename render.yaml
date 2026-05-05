@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: rkts-node-api
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_CLIENT
+        value: pg
+      # DATABASE_URL deve ser definida no painel do Render
+      # Vai ser preenchida automaticamente quando você conectar o banco PostgreSQL
+      - key: PORT
+        value: 3000
+
+    # Se quiser rodar migrações automaticamente após o build:
+    # buildCommand: npm install && npm run knex -- migrate:latest && npm run build
+
+    # Deixe commentado se preferir rodar as migrações manualmente:
+    # npm run knex -- migrate:latest
+
+# Crie um novo PostgreSQL Database no Render e conecte a este serviço
+# O DATABASE_URL será preenchido automaticamente
